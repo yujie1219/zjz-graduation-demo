@@ -19,7 +19,7 @@ public class RateLimitFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        if (bucket.offer(new ClientRequest(servletRequest, servletResponse, filterChain))) {
+        if (bucket.offerBucket(new ClientRequest(servletRequest, servletResponse, filterChain))) {
             listener.handle();
         } else {
             // return an error response to client

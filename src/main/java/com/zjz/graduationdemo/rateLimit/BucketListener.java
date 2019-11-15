@@ -12,14 +12,11 @@ public class BucketListener {
     @Autowired
     private Bucket bucket;
 
-    @Autowired
-    private TokenQueue tokens;
-
     public void handle() throws IOException, ServletException {
         try {
-            tokens.take();
+            bucket.takeToken();
 
-            ClientRequest clientRequest = bucket.poll();
+            ClientRequest clientRequest = bucket.pollBucket();
             clientRequest.getFilterChain().doFilter(clientRequest.getRequest(), clientRequest.getResponse());
         } catch (InterruptedException e) {
             // write into log
