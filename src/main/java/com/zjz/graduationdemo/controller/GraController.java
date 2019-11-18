@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/graduation")
 public class GraController {
 
-    @RequestMapping(path = "/call",method = RequestMethod.GET)
+    @RequestMapping(path = "/call", method = RequestMethod.GET)
     public ResponseEntity<Result> callSuccess() {
-        return new ResponseEntity<Result>(new Result(), HttpStatus.OK);
+        return new ResponseEntity(new Result(), HttpStatus.OK);
     }
 
 }
