@@ -2,8 +2,10 @@ package com.zjz.graduationdemo.rateLimit;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bucket {
+    public static AtomicInteger count = new AtomicInteger(0);
     private static Bucket instance = null;
 
     private int maxBucketSize = 100;
@@ -43,6 +45,7 @@ public class Bucket {
 
     // if there is no token, block
     public String takeToken() throws InterruptedException {
-        return (String) tokens.take();
+        Object object = tokens.take();
+        return object == null ? null : (String) object;
     }
 }

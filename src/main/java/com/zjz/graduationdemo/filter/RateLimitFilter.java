@@ -26,11 +26,12 @@ public class RateLimitFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        int count = Bucket.count.addAndGet(1);
         if (bucket.offerBucket(new ClientRequest(servletRequest, servletResponse, filterChain))) {
-            log.info("bucket is not full, put request into bucket");
+            log.info("bucket is not full, put request {} into bucket", count);
             listener.handle();
         } else {
-            log.info("bucket is full, return an fail response to client");
+            log.info("bucket is full,request {} return an fail response to client", count);
             returnFailResponse((HttpServletResponse) servletResponse);
         }
     }

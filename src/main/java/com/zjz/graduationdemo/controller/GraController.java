@@ -15,7 +15,6 @@ public class GraController {
 
     @RequestMapping(path = "/call",method = RequestMethod.GET)
     public ResponseEntity<Result> callSuccess() {
-        log.info("Request at callSuccess method");
         return new ResponseEntity<Result>(new Result(), HttpStatus.OK);
     }
 
