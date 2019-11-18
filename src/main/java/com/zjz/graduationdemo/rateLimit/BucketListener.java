@@ -1,11 +1,13 @@
 package com.zjz.graduationdemo.rateLimit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class BucketListener {
 
@@ -19,7 +21,7 @@ public class BucketListener {
             ClientRequest clientRequest = bucket.pollBucket();
             clientRequest.getFilterChain().doFilter(clientRequest.getRequest(), clientRequest.getResponse());
         } catch (InterruptedException e) {
-            // write into log
+            log.info("handle request error:" + e.getLocalizedMessage());
         }
     }
 }
