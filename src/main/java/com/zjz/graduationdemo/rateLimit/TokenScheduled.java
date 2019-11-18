@@ -11,11 +11,11 @@ public class TokenScheduled {
     @Autowired
     private Bucket bucket;
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 3000)
     public void addToken() {
         for (int i = 0; i < 100; i++) {
             if (!bucket.offerToken(i + "")) {
-                log.error("add {}st token fail, token list is full", i);
+                // log.error("add {}st token fail, token list is full", i);
                 break;
             }
         }
