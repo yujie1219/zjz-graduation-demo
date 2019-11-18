@@ -21,7 +21,7 @@ public class BucketListener {
             ClientRequest clientRequest = bucket.pollBucket();
             clientRequest.getFilterChain().doFilter(clientRequest.getRequest(), clientRequest.getResponse());
         } catch (InterruptedException e) {
-            log.info("handle request error:" + e.getLocalizedMessage());
+            log.error("handle request error:" + e.getLocalizedMessage());
         }
     }
 }

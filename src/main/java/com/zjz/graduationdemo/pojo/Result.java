@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Result {
     private boolean responseStatus = true;
+
+    private String failMessage;
 }
