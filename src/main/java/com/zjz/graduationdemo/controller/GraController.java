@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/graduation")
 public class GraController {
 
+    /**
+     * The Api is used to return a successful response
+     *
+     * @return Successful Response
+     */
     @RequestMapping(path = "/call", method = RequestMethod.GET)
     public ResponseEntity<Result> callSuccess() {
         return new ResponseEntity(new Result(), HttpStatus.OK);

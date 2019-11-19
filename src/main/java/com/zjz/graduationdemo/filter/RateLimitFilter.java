@@ -1,12 +1,13 @@
 package com.zjz.graduationdemo.filter;
 
 import com.google.gson.Gson;
+import com.zjz.graduationdemo.pojo.ClientRequest;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
 import com.zjz.graduationdemo.rateLimit.BucketListener;
-import com.zjz.graduationdemo.rateLimit.ClientRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.io.PrintWriter;
 
 @Slf4j
 @Component
+@Order(2)
 public class RateLimitFilter implements Filter {
     @Autowired
     private Bucket bucket;

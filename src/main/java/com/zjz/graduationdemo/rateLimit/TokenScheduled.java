@@ -11,11 +11,14 @@ public class TokenScheduled {
     @Autowired
     private Bucket bucket;
 
-    @Scheduled(fixedRate = 3000)
+    /**
+     * Add 100 tokens every 1 seconds
+     */
+    @Scheduled(fixedRate = 1000)
     public void addToken() {
         for (int i = 0; i < 100; i++) {
+            // not sure If token need be generated buy some tools and if token need have some meanings
             if (!bucket.offerToken(i + "")) {
-                // log.error("add {}st token fail, token list is full", i);
                 break;
             }
         }

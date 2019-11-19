@@ -1,4 +1,4 @@
-package com.zjz.graduationdemo.rateLimit;
+package com.zjz.graduationdemo.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

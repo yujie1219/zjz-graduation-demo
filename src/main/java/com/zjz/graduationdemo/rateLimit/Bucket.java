@@ -1,5 +1,7 @@
 package com.zjz.graduationdemo.rateLimit;
 
+import com.zjz.graduationdemo.pojo.ClientRequest;
+
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,15 +37,20 @@ public class Bucket {
     }
 
     public ClientRequest pollBucket() {
-        return (ClientRequest) bucket.poll();
+        Object object = bucket.poll();
+        return object == null ? null : (ClientRequest) object;
     }
 
-    // using a Timed task to add token every ? seconds
     public boolean offerToken(String token) {
         return tokens.offer(token);
     }
 
-    // if there is no token, block
+    /**
+     * If there is no any token in tokens, block the thread
+     *
+     * @return the token at the head of the queue
+     * @throws InterruptedException
+     */
     public String takeToken() throws InterruptedException {
         Object object = tokens.take();
         return object == null ? null : (String) object;
