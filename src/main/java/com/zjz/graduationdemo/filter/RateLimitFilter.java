@@ -1,10 +1,8 @@
 package com.zjz.graduationdemo.filter;
 
 import com.google.gson.Gson;
-import com.zjz.graduationdemo.pojo.ClientRequest;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
-import com.zjz.graduationdemo.rateLimit.BucketListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -12,9 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Random;
 
 @Slf4j
 @Component
@@ -23,18 +23,28 @@ public class RateLimitFilter implements Filter {
     @Autowired
     private Bucket bucket;
 
-    @Autowired
-    private BucketListener listener;
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         int count = Bucket.count.addAndGet(1);
-        if (bucket.offerBucket(new ClientRequest(servletRequest, servletResponse, filterChain))) {
+
+        // maybe we can set the attribute name as token and generate the value via JWT
+        servletRequest.setAttribute("key", new Random(System.nanoTime()).nextInt() + "");
+        servletRequest.setAttribute("Cache-Control",
+                "private, no-cache, no-store, must-revalidate"
+        );
+
+        if (bucket.offerBucket((HttpServletRequest) servletRequest)) {
             log.info("bucket is not full, put request {} into bucket", count);
-            listener.handle();
+            filterChain.doFilter(servletRequest, servletResponse);
         } else {
-            log.info("bucket is full,request {} return an fail response to client", count);
-            returnFailResponse((HttpServletResponse) servletResponse);
+            log.info("bucket is full,try to take token for request {}", count);
+            if (bucket.takeToken() != null) {
+                log.info("request {} get token successfully", count);
+                filterChain.doFilter(servletRequest, servletResponse);
+            } else {
+                log.info("Token queue is empty, request {} will return an error response for client", count);
+                returnFailResponse((HttpServletResponse) servletResponse);
+            }
         }
     }
 
@@ -46,6 +56,5 @@ public class RateLimitFilter implements Filter {
         PrintWriter out = response.getWriter();
         out.print(new Gson().toJson(result));
         out.close();
-
     }
 }

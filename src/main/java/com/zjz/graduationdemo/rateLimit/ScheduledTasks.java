@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TokenScheduled {
+public class ScheduledTasks {
     @Autowired
     private Bucket bucket;
 
@@ -21,6 +21,16 @@ public class TokenScheduled {
             if (!bucket.offerToken(i + "")) {
                 break;
             }
+        }
+    }
+
+    /**
+     * Consume 100 bucket every 1 seconds
+     */
+    @Scheduled(fixedRate = 1000)
+    public void consumeBucket() {
+        for (int i = 0; i < 100; i++) {
+            bucket.consumeBucket();
         }
     }
 }
