@@ -1,5 +1,6 @@
 package com.zjz.graduationdemo.rateLimit;
 
+import com.zjz.graduationdemo.GraduationDemoConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,12 +12,15 @@ public class ScheduledTasks {
     @Autowired
     private Bucket bucket;
 
+    @Autowired
+    private GraduationDemoConfig config;
+
     /**
      * Add 100 tokens every 1 seconds
      */
     @Scheduled(fixedRate = 1000)
     public void addToken() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < config.getTokenAddRate(); i++) {
             // not sure If token need be generated buy some tools and if token need have some meanings
             if (!bucket.offerToken(i + "")) {
                 break;
@@ -29,7 +33,7 @@ public class ScheduledTasks {
      */
     @Scheduled(fixedRate = 1000)
     public void consumeBucket() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < config.getBucketConsumeRate(); i++) {
             bucket.consumeBucket();
         }
     }

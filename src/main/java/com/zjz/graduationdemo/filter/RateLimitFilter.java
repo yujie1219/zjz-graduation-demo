@@ -1,6 +1,7 @@
 package com.zjz.graduationdemo.filter;
 
 import com.google.gson.Gson;
+import com.zjz.graduationdemo.GraduationDemoConfig;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +24,15 @@ public class RateLimitFilter implements Filter {
     @Autowired
     private Bucket bucket;
 
+    @Autowired
+    private GraduationDemoConfig config;
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         int count = Bucket.count.addAndGet(1);
 
         // maybe we can set the attribute name as token and generate the value via JWT
-        servletRequest.setAttribute("key", new Random(System.nanoTime()).nextInt() + "");
-        servletRequest.setAttribute("Cache-Control",
-                "private, no-cache, no-store, must-revalidate"
-        );
+        servletRequest.setAttribute(config.getKeyName(), new Random(System.nanoTime()).nextInt() + "");
 
         if (bucket.offerBucket((HttpServletRequest) servletRequest)) {
             log.info("bucket is not full, put request {} into bucket", count);

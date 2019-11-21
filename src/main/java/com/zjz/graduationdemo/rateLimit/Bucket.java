@@ -1,9 +1,12 @@
 package com.zjz.graduationdemo.rateLimit;
 
+import com.zjz.graduationdemo.GraduationDemoConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,40 +14,46 @@ public class Bucket {
     public static AtomicInteger count = new AtomicInteger(0);
     private static Bucket instance = null;
 
-    private int maxBucketSize = 100;
-    private int maxTokenSize = 100;
-
     private Queue bucket;
     private Map<String, HttpServletRequest> pendingRequest;
     private LinkedBlockingQueue tokens;
 
-    private Bucket() {
-        bucket = new LinkedBlockingQueue<String>(maxBucketSize);
-        pendingRequest = new HashMap<>();
-        tokens = new LinkedBlockingQueue<String>(maxTokenSize);
+    @Autowired
+    private GraduationDemoConfig config;
+
+    private Bucket(int bucketMaxSize, int tokensMaxSize) {
+        bucket = new LinkedBlockingQueue<String>(bucketMaxSize);
+        pendingRequest = new ConcurrentHashMap<>();
+        tokens = new LinkedBlockingQueue<String>(tokensMaxSize);
     }
 
-    public static Bucket getInstance() {
+    public static Bucket getInstance(int bucketMaxSize, int tokensMaxSize) {
         if (instance == null) {
             synchronized (Bucket.class) {
                 if (instance == null) {
-                    instance = new Bucket();
+                    instance = new Bucket(bucketMaxSize, tokensMaxSize);
                 }
             }
         }
         return instance;
     }
 
+    /**
+     * Put key & request into pendingRequestMap and add the key to bucket
+     *
+     * @param request
+     * @return
+     */
     public boolean offerBucket(HttpServletRequest request) {
-        String key = request.getAttribute("key").toString();
+        String key = request.getAttribute(config.getKeyName()).toString();
         pendingRequest.put(key, request);
         return bucket.offer(key);
     }
 
     /**
-     * consume bucket at the head of the queue
+     * consume key at the head of the bucket and remove the request related
      *
-     * @return the bucket at the head of the queue
+     * @return the request at the head of the bucket
      */
     public HttpServletRequest consumeBucket() {
         Object object = bucket.poll();
@@ -60,6 +69,12 @@ public class Bucket {
         }
     }
 
+    /**
+     * if pendingRequest Map contains the key ,the request is still pending
+     *
+     * @param key
+     * @return if the request is sill pending
+     */
     public boolean isRequestPending(String key) {
         return pendingRequest.containsKey(key);
     }

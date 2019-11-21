@@ -1,5 +1,6 @@
 package com.zjz.graduationdemo.controller;
 
+import com.zjz.graduationdemo.GraduationDemoConfig;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +23,17 @@ public class GraController {
     @Autowired
     private Bucket bucket;
 
+    @Autowired
+    private GraduationDemoConfig config;
+
     /**
-     * The Api is used to return a successful response
+     * This Api is used to return a successful response
      *
      * @return Successful Response
      */
     @RequestMapping(path = "/call", method = RequestMethod.GET)
     public ResponseEntity<Result> callSuccess() {
-        while (bucket.isRequestPending(request.getAttribute("key").toString())) {
+        while (bucket.isRequestPending(request.getAttribute(config.getKeyName()).toString())) {
             // if the request is still pending, do nothing
         }
 
