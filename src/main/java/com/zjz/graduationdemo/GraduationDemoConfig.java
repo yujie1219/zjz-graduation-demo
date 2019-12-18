@@ -26,6 +26,18 @@ public class GraduationDemoConfig {
     @Value("${token-add-rate}")
     private int tokenAddRate;
 
+    @Value("${task.pool.corePoolSize}")
+    private int corePoolSize;
+
+    @Value("${task.pool.maxPoolSize}")
+    private int maxPoolSize;
+
+    @Value("${task.pool.keepAliveSeconds}")
+    private int keepAliveSeconds;
+
+    @Value("${task.pool.queueCapacity}")
+    private int queueCapacity;
+
     @Bean
     public Bucket bucket() {
         return Bucket.getInstance(bucketMaxSize, tokensMaxSize);

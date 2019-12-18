@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -32,18 +33,20 @@ public class RateLimitFilter implements Filter {
         int count = Bucket.count.addAndGet(1);
 
         // maybe we can set the attribute name as token and generate the value via JWT
-        servletRequest.setAttribute(config.getKeyName(), new Random(System.nanoTime()).nextInt() + "");
+        String uuid = UUID.randomUUID().toString();
+        servletRequest.setAttribute(config.getKeyName(), uuid);
 
+        log.info("Request {} comes,uuid {}", count, uuid);
         if (bucket.offerBucket((HttpServletRequest) servletRequest)) {
-            log.info("bucket is not full, put request {} into bucket", count);
+            log.info("bucket is not full, put request {} into bucket,uuid {}", count, uuid);
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             log.info("bucket is full,try to take token for request {}", count);
             if (bucket.takeToken() != null) {
-                log.info("request {} get token successfully", count);
+                log.info("request {} get token successfully,uuid {}", count, uuid);
                 filterChain.doFilter(servletRequest, servletResponse);
             } else {
-                log.info("Token queue is empty, request {} will return an error response for client", count);
+                log.info("Token queue is empty, request {} will return an error response for client,uuid {}", count, uuid);
                 returnFailResponse((HttpServletResponse) servletResponse);
             }
         }

@@ -1,6 +1,7 @@
 package com.zjz.graduationdemo.controller;
 
 import com.zjz.graduationdemo.GraduationDemoConfig;
+import com.zjz.graduationdemo.async.AsyncTask;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Slf4j
 @RestController
@@ -26,18 +30,19 @@ public class GraController {
     @Autowired
     private GraduationDemoConfig config;
 
+    @Autowired
+    private AsyncTask asyncTask;
+
     /**
      * This Api is used to return a successful response
      *
      * @return Successful Response
      */
     @RequestMapping(path = "/call", method = RequestMethod.GET)
-    public ResponseEntity<Result> callSuccess() {
-        while (bucket.isRequestPending(request.getAttribute(config.getKeyName()).toString())) {
-            // if the request is still pending, do nothing
-        }
+    public ResponseEntity<Result> callSuccess() throws ExecutionException, InterruptedException {
+        Future<ResponseEntity<Result>> future = asyncTask.executeAsync(bucket, request.getAttribute(config.getKeyName()).toString());
 
-        return new ResponseEntity(new Result(), HttpStatus.OK);
+        return future.get();
     }
 
 }

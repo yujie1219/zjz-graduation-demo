@@ -46,8 +46,12 @@ public class Bucket {
      */
     public boolean offerBucket(HttpServletRequest request) {
         String key = request.getAttribute(config.getKeyName()).toString();
-        pendingRequest.put(key, request);
-        return bucket.offer(key);
+        if(bucket.offer(key)) {
+            pendingRequest.put(key, request);
+            return true;
+        }else {
+            return false;
+        }
     }
 
     /**
