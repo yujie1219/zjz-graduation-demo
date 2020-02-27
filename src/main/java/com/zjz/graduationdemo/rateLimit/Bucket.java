@@ -93,7 +93,7 @@ public class Bucket {
      * @return the token at the head of the queue
      */
     public boolean takeToken(long size) {
-        if (tokens.size() > size) {
+        if (tokens.size() >= size) {
             while (size > 0) {
                 tokens.poll();
                 size--;
