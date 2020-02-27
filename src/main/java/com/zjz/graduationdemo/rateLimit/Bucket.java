@@ -92,8 +92,14 @@ public class Bucket {
      *
      * @return the token at the head of the queue
      */
-    public String takeToken() {
-        Object object = tokens.poll();
-        return object == null ? null : (String) object;
+    public boolean takeToken(long size) {
+        if (tokens.size() > size) {
+            while (size > 0) {
+                tokens.poll();
+                size--;
+            }
+            return true;
+        }
+        return false;
     }
 }

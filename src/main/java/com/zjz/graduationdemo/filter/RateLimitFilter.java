@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.zjz.graduationdemo.GraduationDemoConfig;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -48,7 +49,7 @@ public class RateLimitFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             log.info("bucket is full,try to take token for request {}", count);
-            if (tokenOpen && bucket.takeToken() != null) {
+            if (tokenOpen && bucket.takeToken(ObjectSizeCalculator.getObjectSize(servletRequest))) {
                 log.info("request {} get token successfully,uuid {}", count, uuid);
                 filterChain.doFilter(servletRequest, servletResponse);
             } else {
