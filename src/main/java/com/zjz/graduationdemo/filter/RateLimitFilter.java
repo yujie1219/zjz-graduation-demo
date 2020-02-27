@@ -31,18 +31,24 @@ public class RateLimitFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         int count = Bucket.count.addAndGet(1);
+        boolean bucketOpen = config.isBucketOpen();
+        boolean tokenOpen = config.isTokenOpen();
+
+        if(!bucketOpen && !tokenOpen){
+            filterChain.doFilter(servletRequest, servletResponse);
+        }
 
         // maybe we can set the attribute name as token and generate the value via JWT
         String uuid = UUID.randomUUID().toString();
         servletRequest.setAttribute(config.getKeyName(), uuid);
 
         log.info("Request {} comes,uuid {}", count, uuid);
-        if (bucket.offerBucket((HttpServletRequest) servletRequest)) {
+        if (bucketOpen && bucket.offerBucket((HttpServletRequest) servletRequest)) {
             log.info("bucket is not full, put request {} into bucket,uuid {}", count, uuid);
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             log.info("bucket is full,try to take token for request {}", count);
-            if (bucket.takeToken() != null) {
+            if (tokenOpen && bucket.takeToken() != null) {
                 log.info("request {} get token successfully,uuid {}", count, uuid);
                 filterChain.doFilter(servletRequest, servletResponse);
             } else {

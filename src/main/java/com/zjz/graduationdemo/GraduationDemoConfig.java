@@ -14,6 +14,9 @@ public class GraduationDemoConfig {
     @Value("${key-name}")
     private String keyName;
 
+    @Value("${bucket-open}")
+    private boolean bucketOpen = true;
+
     @Value("${bucket-max-size}")
     private int bucketMaxSize;
 
@@ -22,6 +25,9 @@ public class GraduationDemoConfig {
 
     @Value("${bucket-consume-rate}")
     private int bucketConsumeRate;
+
+    @Value("${token-open}")
+    private boolean tokenOpen = true;
 
     @Value("${token-add-rate}")
     private int tokenAddRate;
