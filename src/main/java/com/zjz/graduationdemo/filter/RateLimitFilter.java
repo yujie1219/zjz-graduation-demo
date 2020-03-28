@@ -2,6 +2,7 @@ package com.zjz.graduationdemo.filter;
 
 import com.google.gson.Gson;
 import com.zjz.graduationdemo.GraduationDemoConfig;
+import com.zjz.graduationdemo.pojo.RequestSumPerSec;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -46,11 +46,13 @@ public class RateLimitFilter implements Filter {
         log.info("Request {} comes,uuid {}", count, uuid);
         if (bucketOpen && bucket.offerBucket((HttpServletRequest) servletRequest)) {
             log.info("bucket is not full, put request {} into bucket,uuid {}", count, uuid);
+            RequestSumPerSec.requestSuccess();
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             log.info("bucket is full,try to take token for request {}", count);
             if (tokenOpen && bucket.takeToken(ObjectSizeCalculator.getObjectSize(servletRequest))) {
                 log.info("request {} get token successfully,uuid {}", count, uuid);
+                RequestSumPerSec.requestSuccess();
                 filterChain.doFilter(servletRequest, servletResponse);
             } else {
                 log.info("Token queue is empty, request {} will return an error response for client,uuid {}", count, uuid);
@@ -60,6 +62,8 @@ public class RateLimitFilter implements Filter {
     }
 
     private void returnFailResponse(HttpServletResponse response) throws IOException {
+        RequestSumPerSec.requestFail();
+
         response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json; charset=utf-8");
         Result result = new Result(false, "bucket is full");

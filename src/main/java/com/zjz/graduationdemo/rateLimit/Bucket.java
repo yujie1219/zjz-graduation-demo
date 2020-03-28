@@ -1,12 +1,16 @@
 package com.zjz.graduationdemo.rateLimit;
 
 import com.zjz.graduationdemo.GraduationDemoConfig;
+import com.zjz.graduationdemo.pojo.RequestSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,6 +21,7 @@ public class Bucket {
     private Queue bucket;
     private Map<String, HttpServletRequest> pendingRequest;
     private LinkedBlockingQueue tokens;
+    private List<RequestSummary> requestSummaries;
 
     @Autowired
     private GraduationDemoConfig config;
@@ -25,6 +30,7 @@ public class Bucket {
         bucket = new LinkedBlockingQueue<String>(bucketMaxSize);
         pendingRequest = new ConcurrentHashMap<>();
         tokens = new LinkedBlockingQueue<String>(tokensMaxSize);
+        requestSummaries = new ArrayList<>();
     }
 
     public static Bucket getInstance(int bucketMaxSize, int tokensMaxSize) {
@@ -101,5 +107,9 @@ public class Bucket {
             return true;
         }
         return false;
+    }
+
+    public void restoreRequest(){
+
     }
 }
