@@ -6,6 +6,7 @@ import com.zjz.graduationdemo.dao.RSDao;
 import com.zjz.graduationdemo.pojo.RequestSummary;
 import com.zjz.graduationdemo.pojo.Result;
 import com.zjz.graduationdemo.rateLimit.Bucket;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,7 @@ public class GraController {
      *
      * @return Successful Response
      */
+    @ApiOperation(value = "Test Concurrent Api")
     @RequestMapping(path = "/call", method = RequestMethod.GET)
     public ResponseEntity<Result> call() throws ExecutionException, InterruptedException {
         Future<ResponseEntity<Result>> future = asyncTask.executeAsync(bucket, request.getAttribute(config.getKeyName()).toString());
@@ -54,9 +56,16 @@ public class GraController {
         return future.get();
     }
 
+    /**
+     * This Api is used to return RequestSummary between start and end
+     * @param start start of createTime of RequestSummary
+     * @param end end of createTime of RequestSummary
+     * @return RequestSummary between start and end
+     */
+    @ApiOperation(value = "Get RequestSummary between start and end")
     @RequestMapping(path = "/getRS", method = RequestMethod.GET)
     public ResponseEntity<List<RequestSummary>> getRequestSummary(@RequestParam Date start, @RequestParam Date end) {
-        Optional<List<RequestSummary>> result = rsDao.findByCurrentTimeBetween(start, end);
+        Optional<List<RequestSummary>> result = rsDao.findByCreateTimeBetween(start, end);
 
         if (result.isPresent()) {
             return new ResponseEntity<>(result.get(), HttpStatus.OK);

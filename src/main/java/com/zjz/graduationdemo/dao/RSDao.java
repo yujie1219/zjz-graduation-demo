@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RSDao extends JpaRepository<RequestSummary, Date> {
-    public Optional<List<RequestSummary>> findByCurrentTimeBetween(Date start, Date end);
+    public Optional<List<RequestSummary>> findByCreateTimeBetween(Date start, Date end);
 }

@@ -15,7 +15,7 @@ public class RequestSummary {
     @Id
     @Column(columnDefinition = "datetime")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date currentTime;
+    private Date createTime;
 
     private Long requestNum;
 
